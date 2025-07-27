@@ -206,6 +206,10 @@
     "https://i.ibb.co/xtNDYsSB/Whats-App-Image-2025-07-27-at-14-11-45-2.jpg",
     "https://i.ibb.co/QjcvqyMz/Whats-App-Image-2025-07-27-at-14-11-45-1.jpg",
     "https://i.ibb.co/C3vyY5Yn/Whats-App-Image-2025-07-27-at-14-11-45.jpg",
+    "https://i.ibb.co/9MKx53Y/Whats-App-Image-2025-07-27-at-14-52-46.jpg",
+    "https://i.ibb.co/TDy9fSd5/Whats-App-Image-2025-07-27-at-14-52-45-2.jpg",
+    "https://i.ibb.co/b5rxwGB4/Whats-App-Image-2025-07-27-at-14-52-45-1.jpg",
+    "https://i.ibb.co/Rk78hFyg/Whats-App-Image-2025-07-27-at-14-52-45.jpg"
         ];
 
         let characters = [];
@@ -218,7 +222,7 @@
             characters = [];
             
             // Create character objects
-            for (let i = 0; i < 24; i++) {
+            for (let i = 0; i < 27; i++) {
                 characters.push({
                     id: i,
                     image: characterImages[i],
@@ -227,7 +231,7 @@
             }
             
             // Select random character for player
-            selectedCharacter = Math.floor(Math.random() * 24);
+            selectedCharacter = Math.floor(Math.random() * 27);
             characterRevealed = false;
             
             // Create character cards
