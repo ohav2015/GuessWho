@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Who Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #D2B48C, #F4E4BC);
+            min-height: 100vh;
+            padding: 20px;
+            color: #5D4037;
+        }
+
+        .game-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #8B4513;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-reveal {
+            background: linear-gradient(135deg, #CD853F, #D2691E);
+            color: white;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #A0522D, #8B4513);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .character-display {
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .character-info {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .character-card {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .character-card:hover {
+            transform: scale(1.05);
+        }
+
+        .character-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .character-card.disabled {
+            filter: grayscale(100%) brightness(0.5);
+            opacity: 0.6;
+        }
+
+        .character-card.disabled::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(139, 69, 19, 0.7);
+            pointer-events: none;
+        }
+
+        .character-number {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            background: rgba(139, 69, 19, 0.8);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .game-board {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            
+            .btn {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">Guess Who?</h1>
+        
+        <div class="controls">
+            <button class="btn btn-reveal" onclick="revealCharacter()">Show My Character</button>
+            <button class="btn btn-reset" onclick="resetGame()">New Game</button>
+        </div>
+
+        <div class="character-display">
+            <div class="character-info" id="characterInfo">Click "Show My Character" to see who you got!</div>
+        </div>
+
+        <div class="game-board" id="gameBoard"></div>
+    </div>
+
+    <script>
+        // Replace these URLs with your imgbb direct image URLs (the src URLs)
+        const characterImages = [
+            "https://i.ibb.co/60yQ9MPp/IMG-3425.jpg", // Test image
+            "https://via.placeholder.com/150x150/A0522D/FFFFFF?text=2",
+            "https://via.placeholder.com/150x150/CD853F/FFFFFF?text=3",
+            "https://via.placeholder.com/150x150/D2691E/FFFFFF?text=4",
+            "https://via.placeholder.com/150x150/F4A460/FFFFFF?text=5",
+            "https://via.placeholder.com/150x150/DEB887/FFFFFF?text=6",
+            "https://via.placeholder.com/150x150/D2B48C/FFFFFF?text=7",
+            "https://via.placeholder.com/150x150/BC9A6A/FFFFFF?text=8",
+            "https://via.placeholder.com/150x150/9B7653/FFFFFF?text=9",
+            "https://via.placeholder.com/150x150/8B7355/FFFFFF?text=10",
+            "https://via.placeholder.com/150x150/A0826D/FFFFFF?text=11",
+            "https://via.placeholder.com/150x150/B5927B/FFFFFF?text=12",
+            "https://via.placeholder.com/150x150/C9A96E/FFFFFF?text=13",
+            "https://via.placeholder.com/150x150/D4B896/FFFFFF?text=14",
+            "https://via.placeholder.com/150x150/E6D3B7/FFFFFF?text=15",
+            "https://via.placeholder.com/150x150/F0E2CC/FFFFFF?text=16",
+            "https://via.placeholder.com/150x150/8B6914/FFFFFF?text=17",
+            "https://via.placeholder.com/150x150/A0751A/FFFFFF?text=18",
+            "https://via.placeholder.com/150x150/B8860B/FFFFFF?text=19",
+            "https://via.placeholder.com/150x150/DAA520/FFFFFF?text=20",
+            "https://via.placeholder.com/150x150/FFD700/FFFFFF?text=21",
+            "https://via.placeholder.com/150x150/F0E68C/FFFFFF?text=22",
+            "https://via.placeholder.com/150x150/EEE8AA/FFFFFF?text=23",
+            "https://via.placeholder.com/150x150/FFEBCD/FFFFFF?text=24"
+        ];
+
+        let characters = [];
+        let selectedCharacter = null;
+        let characterRevealed = false;
+
+        function initializeGame() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            characters = [];
+            
+            // Create character objects
+            for (let i = 0; i < 24; i++) {
+                characters.push({
+                    id: i,
+                    image: characterImages[i],
+                    enabled: true
+                });
+            }
+            
+            // Select random character for player
+            selectedCharacter = Math.floor(Math.random() * 24);
+            characterRevealed = false;
+            
+            // Create character cards
+            characters.forEach((character, index) => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.onclick = () => toggleCharacter(index);
+                
+                const img = document.createElement('img');
+                img.src = character.image;
+                img.alt = `Character ${index + 1}`;
+                
+                const number = document.createElement('div');
+                number.className = 'character-number';
+                number.textContent = index + 1;
+                
+                card.appendChild(img);
+                card.appendChild(number);
+                gameBoard.appendChild(card);
+            });
+            
+            // Reset character display
+            document.getElementById('characterInfo').textContent = "Click \"Show My Character\" to see who you got!";
+        }
+
+        function toggleCharacter(index) {
+            const character = characters[index];
+            const card = document.querySelectorAll('.character-card')[index];
+            
+            character.enabled = !character.enabled;
+            
+            if (character.enabled) {
+                card.classList.remove('disabled');
+            } else {
+                card.classList.add('disabled');
+            }
+        }
+
+        function revealCharacter() {
+            if (selectedCharacter !== null) {
+                const characterNum = selectedCharacter + 1;
+                document.getElementById('characterInfo').innerHTML = 
+                    `<strong>Your character is #${characterNum}</strong><br><img src="${characterImages[selectedCharacter]}" style="width: 40px; height: 40px; border-radius: 8px; margin-top: 8px;">`;
+                characterRevealed = true;
+            }
+        }
+
+        function resetGame() {
+            initializeGame();
+        }
+
+        // Initialize the game when page loads
+        window.onload = function() {
+            initializeGame();
+        };
+    </script>
+</body>
+</html>
